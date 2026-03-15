@@ -98,7 +98,6 @@ margin-top:120px;
 st.markdown(f"""
 <div class="logo-header">
 <img src="{logo_url}" width="200">
-<h2>Cotizador de Asistencias</h2>
 </div>
 """, unsafe_allow_html=True)
 
