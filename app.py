@@ -23,12 +23,13 @@ supabase = create_client(
 # USUARIOS
 # =========================
 
-USERS = {
-    "pablop2026": {"password": "MASecu20$6p", "nombre": "Pablo Pastor"},
-    "fauston2026": {"password": "MASecu20$6f", "nombre": "Fausto Nolivos"},
-    "mateon2026": {"password": "MASecu20$6m", "nombre": "Mateo Nolivos"}
-}
+# USERS = {
+#     "pablop2026": {"password": "MASecu20$6p", "nombre": "Pablo Pastor"},
+#     "fauston2026": {"password": "MASecu20$6f", "nombre": "Fausto Nolivos"},
+#     "mateon2026": {"password": "MASecu20$6m", "nombre": "Mateo Nolivos"}
+# }
 
+USERS = st.secrets["USERS"]
 
 # =========================
 # PERIODOS
