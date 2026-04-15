@@ -181,11 +181,26 @@ footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
+# st.markdown(f"""
+# <div class="logo-header">
+#     <img src="{logo_url}" width="200">
+# </div>
+# """, unsafe_allow_html=True)
+
+import base64
+
+def get_base64_logo(path):
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
+
+logo_base64 = get_base64_logo("logo_mass.jpg")
+
 st.markdown(f"""
 <div class="logo-header">
-    <img src="{logo_url}" width="200">
+    <img src="data:image/jpg;base64,{logo_base64}" width="200">
 </div>
 """, unsafe_allow_html=True)
+
 
 st.markdown('<div class="main">', unsafe_allow_html=True)
 
