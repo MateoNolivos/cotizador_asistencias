@@ -4,3 +4,4 @@ reportlab
 Pillow
 requests
 openpyxl
+supabase
