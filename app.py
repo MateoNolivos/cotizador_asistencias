@@ -8,6 +8,7 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_LEFT, TA_CENTER
 from PIL import Image as PILImage
+from supabase import create_client
 import tempfile
 import requests
 import os
