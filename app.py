@@ -14,6 +14,11 @@ import requests
 import os
 
 
+supabase = create_client(
+    st.secrets["SUPABASE_URL"],
+    st.secrets["SUPABASE_KEY"]
+)
+
 # =========================
 # USUARIOS
 # =========================
@@ -415,6 +420,26 @@ with st.expander("Ver detalle del cálculo"):
 # =========================
 # PDF
 # =========================
+def guardar_log():
+    
+    data = {
+        "cliente": cliente,
+        "cedula": cedula,
+        "fecha_nacimiento": str(fecha_nacimiento),
+        "direccion": direccion,
+        "telefono": telefono,
+        "mail": mail,
+        "vendedor": st.session_state.vendedor,
+        "asistencia": "TELEMEDICINA",
+        "plan": plan_nombre,
+        "periodo": periodo_label,
+        "personas": personas,
+        "cop_mensual": round(cop_mensual,2),
+        "cop_por_persona": round(cop_final_persona,2),
+        "precio_total": round(precio_total,2)
+    }
+
+    supabase.table("logs_cotizaciones").insert(data).execute()
 
 def generar_pdf(
     cliente: str,
@@ -625,6 +650,7 @@ def generar_pdf(
 
 if st.button("Generar Proforma PDF"):
     try:
+        guardar_log()
         pdf_path = generar_pdf(
             cliente=cliente,
             cedula=cedula,
