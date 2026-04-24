@@ -12,24 +12,25 @@ from supabase import create_client
 import tempfile
 import requests
 import os
+import base64
 
+
+# =========================
+# SUPABASE
+# =========================
 
 supabase = create_client(
     st.secrets["SUPABASE_URL"],
     st.secrets["SUPABASE_KEY"]
 )
 
+
 # =========================
 # USUARIOS
 # =========================
 
-# USERS = {
-#     "pablop2026": {"password": "MASecu20$6p", "nombre": "Pablo Pastor"},
-#     "fauston2026": {"password": "MASecu20$6f", "nombre": "Fausto Nolivos"},
-#     "mateon2026": {"password": "MASecu20$6m", "nombre": "Mateo Nolivos"}
-# }
-
 USERS = st.secrets["USERS"]
+
 
 # =========================
 # PERIODOS
@@ -52,72 +53,24 @@ PLANES = {
         "cop_mensual": 0.265923014668853,
         "descripcion": "Plan enfocado en teleasistencia y orientación digital.",
         "coberturas": [
-            {
-                "asistencia": "Telemedicina General + Scan Face",
-                "limite_eventos": "Ilimitado",
-                "cobertura": "Atención médica virtual 24/7"
-            },
-            {
-                "asistencia": "Asistencia educativa",
-                "limite_eventos": "2 eventos",
-                "cobertura": "Sesiones de asesoría educativa virtual hasta 2 horas"
-            },
-            {
-                "asistencia": "Asistencia legal",
-                "limite_eventos": "2 eventos",
-                "cobertura": "Orientación legal telefónica/virtual"
-            },
-            {
-                "asistencia": "Teleorientación ginecológica",
-                "limite_eventos": "6 eventos",
-                "cobertura": "Consulta virtual programada"
-            },
-            {
-                "asistencia": "Limpieza dental",
-                "limite_eventos": "1 evento",
-                "cobertura": "Profilaxis dental anual hasta USD 100"
-            },
-            {
-                "asistencia": "Entrega de medicamentos",
-                "limite_eventos": "1 evento",
-                "cobertura": "Servicio logístico"
-            }
+            {"asistencia": "Telemedicina General + Scan Face", "limite_eventos": "Ilimitado", "cobertura": "Atención médica virtual 24/7"},
+            {"asistencia": "Asistencia educativa", "limite_eventos": "2 eventos", "cobertura": "Sesiones de asesoría educativa virtual hasta 2 horas"},
+            {"asistencia": "Asistencia legal", "limite_eventos": "2 eventos", "cobertura": "Orientación legal telefónica/virtual"},
+            {"asistencia": "Teleorientación ginecológica", "limite_eventos": "6 eventos", "cobertura": "Consulta virtual programada"},
+            {"asistencia": "Limpieza dental", "limite_eventos": "1 evento", "cobertura": "Profilaxis dental anual hasta USD 100"},
+            {"asistencia": "Entrega de medicamentos", "limite_eventos": "1 evento", "cobertura": "Servicio logístico"}
         ]
     },
     "Plan Integral Salud": {
         "cop_mensual": 0.430565037067061,
         "descripcion": "Plan con cobertura médica más integral y robusta.",
         "coberturas": [
-            {
-                "asistencia": "Telemedicina General + Scan Face",
-                "limite_eventos": "Ilimitado",
-                "cobertura": "Atención médica virtual 24/7"
-            },
-            {
-                "asistencia": "Asistencia educativa",
-                "limite_eventos": "2 eventos",
-                "cobertura": "Sesiones de asesoría educativa virtual hasta 2 horas"
-            },
-            {
-                "asistencia": "Asistencia legal",
-                "limite_eventos": "2 eventos",
-                "cobertura": "Orientación legal telefónica/virtual"
-            },
-            {
-                "asistencia": "Consulta médica ginecológica",
-                "limite_eventos": "6 eventos",
-                "cobertura": "Consulta médica con especialista"
-            },
-            {
-                "asistencia": "Limpieza dental",
-                "limite_eventos": "1 evento",
-                "cobertura": "Profilaxis dental anual hasta USD 100"
-            },
-            {
-                "asistencia": "Descuento en medicamentos",
-                "limite_eventos": "15% - 30%",
-                "cobertura": "Beneficio comercial en farmacias afiliadas"
-            }
+            {"asistencia": "Telemedicina General + Scan Face", "limite_eventos": "Ilimitado", "cobertura": "Atención médica virtual 24/7"},
+            {"asistencia": "Asistencia educativa", "limite_eventos": "2 eventos", "cobertura": "Sesiones de asesoría educativa virtual hasta 2 horas"},
+            {"asistencia": "Asistencia legal", "limite_eventos": "2 eventos", "cobertura": "Orientación legal telefónica/virtual"},
+            {"asistencia": "Consulta médica ginecológica", "limite_eventos": "6 eventos", "cobertura": "Consulta médica con especialista"},
+            {"asistencia": "Limpieza dental", "limite_eventos": "1 evento", "cobertura": "Profilaxis dental anual hasta USD 100"},
+            {"asistencia": "Descuento en medicamentos", "limite_eventos": "15% - 30%", "cobertura": "Beneficio comercial en farmacias afiliadas"}
         ]
     }
 }
@@ -148,23 +101,25 @@ if not os.path.exists("logo_mass.jpg"):
 logo_path = "logo_mass.jpg"
 
 
-# =========================
-# CONFIG PÁGINA
-# =========================
-
-st.set_page_config(page_title="Cotizador Telemedicina", layout="wide")
+def get_base64_logo(path):
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
 
 
 # =========================
-# HEADER
+# CONFIG
 # =========================
 
-st.markdown("""
+st.set_page_config(page_title="Cotizador MAS Servicios", layout="wide")
+
+logo_base64 = get_base64_logo(logo_path)
+
+st.markdown(f"""
 <style>
-header {visibility: hidden;}
-footer {visibility: hidden;}
+header {{visibility: hidden;}}
+footer {{visibility: hidden;}}
 
-.logo-header {
+.logo-header {{
     position: fixed;
     top: 0;
     left: 0;
@@ -175,52 +130,70 @@ footer {visibility: hidden;}
     border-bottom: 1px solid #eee;
     display:flex;
     align-items:center;
-}
+}}
 
-.logo-header h2{
-    margin-left:20px;
-    font-family:sans-serif;
-}
-
-.main {
+.main {{
     margin-top:120px;
-}
+}}
+
+.card-option {{
+    background: #ffffff;
+    border: 1px solid #E6EAF0;
+    border-radius: 18px;
+    padding: 28px;
+    text-align: center;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    min-height: 170px;
+}}
+
+.card-icon {{
+    font-size: 48px;
+    margin-bottom: 8px;
+}}
+
+.card-title {{
+    font-size: 24px;
+    font-weight: 700;
+    color: #1F3A5F;
+}}
+
+.card-subtitle {{
+    font-size: 14px;
+    color: #667085;
+}}
 </style>
-""", unsafe_allow_html=True)
 
-# st.markdown(f"""
-# <div class="logo-header">
-#     <img src="{logo_url}" width="200">
-# </div>
-# """, unsafe_allow_html=True)
-
-import base64
-
-def get_base64_logo(path):
-    with open(path, "rb") as f:
-        return base64.b64encode(f.read()).decode()
-
-logo_base64 = get_base64_logo("logo_mass.jpg")
-
-st.markdown(f"""
 <div class="logo-header">
     <img src="data:image/jpg;base64,{logo_base64}" width="200">
 </div>
+<div class="main">
 """, unsafe_allow_html=True)
-
-
-st.markdown('<div class="main">', unsafe_allow_html=True)
 
 
 # =========================
 # SESSION STATE
 # =========================
 
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
+defaults = {
+    "authenticated": False,
+    "logout": False,
+    "modulo": None,
+    "tipo_cliente": None,
+    "cliente": "",
+    "cedula": "",
+    "fecha_nacimiento": date(1990, 1, 1),
+    "direccion": "",
+    "telefono": "",
+    "mail": "",
+    "ruc": "",
+    "personas": 1,
+    "periodo": "Mensual",
+    "plan": "Plan Base Digital"
+}
 
-if "logout" not in st.session_state:
-    st.session_state.logout = False
+for k, v in defaults.items():
+    if k not in st.session_state:
+        st.session_state[k] = v
 
 
 # =========================
@@ -232,6 +205,8 @@ if st.session_state.logout:
     st.session_state.usuario = None
     st.session_state.vendedor = None
     st.session_state.logout = False
+    st.session_state.modulo = None
+    st.session_state.tipo_cliente = None
     st.rerun()
 
 
@@ -266,11 +241,17 @@ col1.success(f"Vendedor: {st.session_state.vendedor}")
 
 if col2.button("Cerrar sesión"):
     st.session_state.logout = True
+    st.rerun()
 
 
 # =========================
-# NUEVA COTIZACIÓN
+# FUNCIONES
 # =========================
+
+def volver_inicio():
+    st.session_state.modulo = None
+    st.session_state.tipo_cliente = None
+
 
 def nueva_cotizacion():
     st.session_state.cliente = ""
@@ -279,51 +260,423 @@ def nueva_cotizacion():
     st.session_state.direccion = ""
     st.session_state.telefono = ""
     st.session_state.mail = ""
+    st.session_state.ruc = ""
     st.session_state.personas = 1
     st.session_state.periodo = "Mensual"
     st.session_state.plan = "Plan Base Digital"
+
+
+def guardar_log_supabase(
+    modulo,
+    tipo_cliente,
+    cliente,
+    cedula,
+    fecha_nacimiento,
+    direccion,
+    telefono,
+    mail,
+    ruc,
+    vendedor,
+    personas,
+    periodo_label,
+    plan_nombre,
+    cop_mensual,
+    cop_final_persona,
+    precio_total
+):
+    data = {
+        "fecha_registro": datetime.now().isoformat(),
+        "modulo": modulo,
+        "tipo_cliente": tipo_cliente,
+        "cliente": cliente,
+        "cedula": cedula if tipo_cliente == "B2C" else None,
+        "fecha_nacimiento": str(fecha_nacimiento) if tipo_cliente == "B2C" else None,
+        "direccion": direccion if tipo_cliente == "B2C" else None,
+        "telefono": telefono if tipo_cliente == "B2C" else None,
+        "mail": mail if tipo_cliente == "B2C" else None,
+        "ruc": ruc if tipo_cliente == "B2B" else None,
+        "vendedor": vendedor,
+        "asistencia": "TELEMEDICINA",
+        "plan": plan_nombre,
+        "periodo": periodo_label,
+        "personas": int(personas),
+        "cop_mensual": round(float(cop_mensual), 2),
+        "cop_por_persona": round(float(cop_final_persona), 2),
+        "precio_total": round(float(precio_total), 2)
+    }
+
+    supabase.table("logs_cotizaciones").insert(data).execute()
+
+
+def generar_pdf(
+    tipo_cliente,
+    cliente,
+    cedula,
+    fecha_nacimiento,
+    direccion,
+    telefono,
+    mail,
+    ruc,
+    vendedor,
+    personas,
+    periodo_label,
+    plan_nombre,
+    cop_mensual,
+    cop_final_persona,
+    precio_total,
+    df_coberturas
+):
+    fecha_hoy = datetime.today()
+    vigencia = fecha_hoy + timedelta(days=14)
+
+    temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+    c = canvas.Canvas(temp_pdf.name, pagesize=letter)
+
+    styles = getSampleStyleSheet()
+
+    style_normal = ParagraphStyle(
+        "normal_custom",
+        parent=styles["Normal"],
+        fontName="Helvetica",
+        fontSize=9,
+        leading=11,
+        alignment=TA_LEFT,
+        textColor=colors.black,
+    )
+
+    style_header = ParagraphStyle(
+        "header_custom",
+        parent=styles["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=9,
+        leading=11,
+        alignment=TA_CENTER,
+        textColor=colors.black,
+    )
+
+    def draw_logo_and_title(title_text):
+        logo = Image(logo_path)
+        logo.drawHeight = 45
+        logo.drawWidth = 150
+        logo.drawOn(c, 40, 735)
+
+        c.setFont("Helvetica-Bold", 18)
+        c.setFillColor(colors.HexColor("#1F3A5F"))
+        c.drawString(220, 748, title_text)
+
+        c.setStrokeColor(colors.HexColor("#D9E2F3"))
+        c.setLineWidth(1)
+        c.line(40, 728, 570, 728)
+        c.setFillColor(colors.black)
+
+    def draw_section_title(text, x, y):
+        c.setFillColor(colors.HexColor("#1F3A5F"))
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(x, y, text)
+        c.setFillColor(colors.black)
+
+    def make_key_value_table(rows, col_widths=(160, 340)):
+        table = Table(rows, colWidths=list(col_widths), rowHeights=22)
+        table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, -1), colors.white),
+            ("BOX", (0, 0), (-1, -1), 0.6, colors.HexColor("#B8C7DB")),
+            ("INNERGRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#D6DEEB")),
+            ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+            ("FONTNAME", (1, 0), (1, -1), "Helvetica"),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("LEFTPADDING", (0, 0), (-1, -1), 6),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        ]))
+        return table
+
+    draw_logo_and_title("Proforma de Telemedicina")
+    draw_section_title("Datos del cliente", 40, 700)
+
+    if tipo_cliente == "B2C":
+        data_cliente = [
+            ["Tipo de cliente", "B2C"],
+            ["Cliente", cliente],
+            ["Cédula", cedula],
+            ["Fecha de nacimiento", fecha_nacimiento.strftime("%d/%m/%Y")],
+            ["Dirección", direccion],
+            ["Teléfono", telefono],
+            ["Mail", mail],
+            ["Vendedor", vendedor],
+        ]
+        y_cliente = 518
+    else:
+        data_cliente = [
+            ["Tipo de cliente", "B2B"],
+            ["Cliente / Empresa", cliente],
+            ["RUC", ruc],
+            ["Vendedor", vendedor],
+        ]
+        y_cliente = 606
+
+    table_cliente = make_key_value_table(data_cliente)
+    table_cliente.wrapOn(c, 40, 0)
+    table_cliente.drawOn(c, 40, y_cliente)
+
+    draw_section_title("Datos de cotización", 40, 490)
+
+    data_cotizacion = [
+        ["Asistencia", "TELEMEDICINA"],
+        ["Plan", plan_nombre],
+        ["Número de personas", f"{personas:,.0f}"],
+        ["Periodo", periodo_label],
+        ["Fecha", fecha_hoy.strftime("%d/%m/%Y")],
+        ["Válido hasta", vigencia.strftime("%d/%m/%Y")],
+    ]
+
+    table_cotizacion = make_key_value_table(data_cotizacion)
+    table_cotizacion.wrapOn(c, 40, 0)
+    table_cotizacion.drawOn(c, 40, 355)
+
+    draw_section_title("Resumen económico", 40, 330)
+
+    data_resumen = [
+        ["Concepto", "Valor"],
+        ["COP mensual base", f"${cop_mensual:,.2f}"],
+        ["COP por persona", f"${cop_final_persona:,.2f}"],
+        ["Precio total", f"${precio_total:,.2f}"],
+    ]
+
+    table_resumen = Table(data_resumen, colWidths=[260, 140], rowHeights=24)
+    table_resumen.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#D9E2F3")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#1F1F1F")),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
+        ("GRID", (0, 0), (-1, -1), 0.6, colors.HexColor("#B8C7DB")),
+        ("ALIGN", (1, 1), (1, -1), "RIGHT"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("BACKGROUND", (0, 1), (-1, -1), colors.white),
+        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+    ]))
+
+    table_resumen.wrapOn(c, 40, 0)
+    table_resumen.drawOn(c, 40, 230)
+
+    c.setFont("Helvetica-Oblique", 8)
+    c.setFillColor(colors.grey)
+    c.drawString(40, 35, "Documento generado automáticamente por el cotizador de telemedicina.")
+    c.setFillColor(colors.black)
+
+    c.showPage()
+    draw_logo_and_title("Coberturas del plan")
+
+    c.setFont("Helvetica", 10)
+    c.drawString(40, 705, f"Plan seleccionado: {plan_nombre}")
+
+    data_coberturas = [[
+        Paragraph("<b>Asistencia</b>", style_header),
+        Paragraph("<b>Límite de eventos</b>", style_header),
+        Paragraph("<b>Cobertura</b>", style_header),
+    ]]
+
+    for _, row in df_coberturas.iterrows():
+        data_coberturas.append([
+            Paragraph(str(row["asistencia"]), style_normal),
+            Paragraph(str(row["limite_eventos"]), style_normal),
+            Paragraph(str(row["cobertura"]), style_normal),
+        ])
+
+    table_cob = Table(data_coberturas, colWidths=[180, 110, 235], repeatRows=1)
+
+    estilo_cob = [
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#D9E2F3")),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#B8C7DB")),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("FONTSIZE", (0, 0), (-1, -1), 9),
+        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+    ]
+
+    for i in range(1, len(data_coberturas)):
+        bg = colors.whitesmoke if i % 2 == 0 else colors.white
+        estilo_cob.append(("BACKGROUND", (0, i), (-1, i), bg))
+
+    table_cob.setStyle(TableStyle(estilo_cob))
+    table_cob.wrapOn(c, 40, 0)
+    table_cob.drawOn(c, 30, 470)
+
+    c.setFont("Helvetica-Oblique", 8)
+    c.setFillColor(colors.grey)
+    c.drawString(40, 35, "Coberturas sujetas a condiciones de contratación y vigencia de la proforma.")
+    c.setFillColor(colors.black)
+
+    c.save()
+    return temp_pdf.name
+
+
+# =========================
+# SELECCIÓN INICIAL
+# =========================
+
+if st.session_state.modulo is None:
+    st.title("Selecciona el tipo de cotización")
+
+    col_masivos, col_viajes = st.columns(2)
+
+    with col_masivos:
+        st.markdown("""
+        <div class="card-option">
+            <div class="card-icon">👥</div>
+            <div class="card-title">MASIVOS</div>
+            <div class="card-subtitle">Cotizador para asistencias masivas</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if st.button("Ingresar a MASIVOS", use_container_width=True):
+            st.session_state.modulo = "MASIVOS"
+            st.rerun()
+
+    with col_viajes:
+        st.markdown("""
+        <div class="card-option">
+            <div class="card-icon">✈️</div>
+            <div class="card-title">VIAJES</div>
+            <div class="card-subtitle">Cotizador para asistencias de viaje</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if st.button("Ingresar a VIAJES", use_container_width=True):
+            st.session_state.modulo = "VIAJES"
+            st.rerun()
+
+    st.stop()
+
+
+# =========================
+# VIAJES
+# =========================
+
+if st.session_state.modulo == "VIAJES":
+    st.title("✈️ Cotizador de Viajes")
+    st.info("Esta sección queda lista para trabajarla luego.")
+    st.button("Volver al inicio", on_click=volver_inicio)
+    st.stop()
+
+
+# =========================
+# MASIVOS
+# =========================
+
+st.title("👥 Cotizador de Masivos")
+
+if st.button("Volver al inicio"):
+    volver_inicio()
+    st.rerun()
+
+st.markdown("---")
+
+if st.session_state.tipo_cliente is None:
+    st.subheader("Selecciona el tipo de cliente")
+
+    col_b2c, col_b2b = st.columns(2)
+
+    with col_b2c:
+        st.markdown("""
+        <div class="card-option">
+            <div class="card-icon">🙋‍♂️</div>
+            <div class="card-title">B2C</div>
+            <div class="card-subtitle">Cliente individual con datos personales</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if st.button("Cotizar B2C", use_container_width=True):
+            st.session_state.tipo_cliente = "B2C"
+            st.rerun()
+
+    with col_b2b:
+        st.markdown("""
+        <div class="card-option">
+            <div class="card-icon">🏢</div>
+            <div class="card-title">B2B</div>
+            <div class="card-subtitle">Empresa o cliente corporativo</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if st.button("Cotizar B2B", use_container_width=True):
+            st.session_state.tipo_cliente = "B2B"
+            st.rerun()
+
+    st.stop()
+
+
+if st.button("Cambiar B2B / B2C"):
+    st.session_state.tipo_cliente = None
+    st.rerun()
 
 
 # =========================
 # DATOS CLIENTE
 # =========================
 
-st.title("Cotizador de Telemedicina")
-st.subheader("Datos del cliente")
+st.subheader(f"Datos del cliente - {st.session_state.tipo_cliente}")
 
-if "fecha_nacimiento" not in st.session_state:
-    st.session_state.fecha_nacimiento = date(1990, 1, 1)
+if st.session_state.tipo_cliente == "B2C":
+    col_cliente_1, col_cliente_2 = st.columns(2)
 
-col_cliente_1, col_cliente_2 = st.columns(2)
+    with col_cliente_1:
+        cliente = st.text_input("Nombre del cliente", key="cliente")
+        cedula = st.text_input("Cédula", key="cedula")
+        fecha_nacimiento = st.date_input(
+            "Fecha de nacimiento",
+            key="fecha_nacimiento",
+            min_value=date(1900, 1, 1),
+            max_value=date.today(),
+            format="DD/MM/YYYY"
+        )
 
-with col_cliente_1:
-    cliente = st.text_input("Nombre del cliente", key="cliente")
-    cedula = st.text_input("Cédula", key="cedula")
-    fecha_nacimiento = st.date_input(
-        "Fecha de nacimiento",
-        key="fecha_nacimiento",
-        min_value=date(1900, 1, 1),
-        max_value=date.today(),
-        format="DD/MM/YYYY"
-    )
+    with col_cliente_2:
+        direccion = st.text_input("Dirección", key="direccion")
+        telefono = st.text_input("Número de teléfono", key="telefono")
+        mail = st.text_input("Mail", key="mail")
 
-with col_cliente_2:
-    direccion = st.text_input("Dirección", key="direccion")
-    telefono = st.text_input("Número de teléfono", key="telefono")
-    mail = st.text_input("Mail", key="mail")
+    ruc = ""
 
-campos_faltantes = []
+    campos_faltantes = []
 
-if cliente == "":
-    campos_faltantes.append("Nombre del cliente")
-if cedula == "":
-    campos_faltantes.append("Cédula")
-if direccion == "":
-    campos_faltantes.append("Dirección")
-if telefono == "":
-    campos_faltantes.append("Número de teléfono")
-if mail == "":
-    campos_faltantes.append("Mail")
+    if cliente == "":
+        campos_faltantes.append("Nombre del cliente")
+    if cedula == "":
+        campos_faltantes.append("Cédula")
+    if direccion == "":
+        campos_faltantes.append("Dirección")
+    if telefono == "":
+        campos_faltantes.append("Número de teléfono")
+    if mail == "":
+        campos_faltantes.append("Mail")
+
+else:
+    col_cliente_1, col_cliente_2 = st.columns(2)
+
+    with col_cliente_1:
+        cliente = st.text_input("Nombre del cliente / empresa", key="cliente")
+
+    with col_cliente_2:
+        ruc = st.text_input("RUC", key="ruc")
+
+    cedula = ""
+    fecha_nacimiento = date(1990, 1, 1)
+    direccion = ""
+    telefono = ""
+    mail = ""
+
+    campos_faltantes = []
+
+    if cliente == "":
+        campos_faltantes.append("Nombre del cliente / empresa")
+    if ruc == "":
+        campos_faltantes.append("RUC")
+
 
 if campos_faltantes:
     st.warning("Complete los siguientes campos: " + ", ".join(campos_faltantes))
@@ -331,7 +684,7 @@ if campos_faltantes:
 
 
 # =========================
-# FORMULARIO DE COTIZACIÓN
+# DATOS DE COTIZACIÓN
 # =========================
 
 st.markdown("---")
@@ -397,10 +750,6 @@ st.subheader("Coberturas del plan")
 st.dataframe(df_coberturas, hide_index=True, use_container_width=True)
 
 
-# =========================
-# DETALLE DE LÓGICA
-# =========================
-
 with st.expander("Ver detalle del cálculo"):
     st.write(f"**COP mensual base:** ${cop_mensual:,.2f}")
     st.write(f"**Periodo seleccionado:** {periodo_label} ({periodo_meses} mes(es))")
@@ -419,246 +768,39 @@ with st.expander("Ver detalle del cálculo"):
 
 
 # =========================
-# PDF
-# =========================
-def guardar_log():
-    
-    data = {
-        "cliente": cliente,
-        "cedula": cedula,
-        "fecha_nacimiento": str(fecha_nacimiento),
-        "direccion": direccion,
-        "telefono": telefono,
-        "mail": mail,
-        "vendedor": st.session_state.vendedor,
-        "asistencia": "TELEMEDICINA",
-        "plan": plan_nombre,
-        "periodo": periodo_label,
-        "personas": personas,
-        "cop_mensual": round(cop_mensual,2),
-        "cop_por_persona": round(cop_final_persona,2),
-        "precio_total": round(precio_total,2)
-    }
-
-    supabase.table("logs_cotizaciones").insert(data).execute()
-
-def generar_pdf(
-    cliente: str,
-    cedula: str,
-    fecha_nacimiento,
-    direccion: str,
-    telefono: str,
-    mail: str,
-    vendedor: str,
-    personas: int,
-    periodo_label: str,
-    plan_nombre: str,
-    cop_mensual: float,
-    cop_final_persona: float,
-    precio_total: float,
-    df_coberturas: pd.DataFrame
-) -> str:
-    fecha_hoy = datetime.today()
-    vigencia = fecha_hoy + timedelta(days=14)
-
-    temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-    c = canvas.Canvas(temp_pdf.name, pagesize=letter)
-
-    styles = getSampleStyleSheet()
-    style_normal = ParagraphStyle(
-        "normal_custom",
-        parent=styles["Normal"],
-        fontName="Helvetica",
-        fontSize=9,
-        leading=11,
-        alignment=TA_LEFT,
-        textColor=colors.black,
-    )
-    style_header = ParagraphStyle(
-        "header_custom",
-        parent=styles["Normal"],
-        fontName="Helvetica-Bold",
-        fontSize=9,
-        leading=11,
-        alignment=TA_CENTER,
-        textColor=colors.black,
-    )
-
-    def draw_logo_and_title(title_text: str):
-        logo = Image(logo_path)
-        logo.drawHeight = 45
-        logo.drawWidth = 150
-        logo.drawOn(c, 40, 735)
-
-        c.setFont("Helvetica-Bold", 18)
-        c.setFillColor(colors.HexColor("#1F3A5F"))
-        c.drawString(220, 748, title_text)
-
-        c.setStrokeColor(colors.HexColor("#D9E2F3"))
-        c.setLineWidth(1)
-        c.line(40, 728, 570, 728)
-
-        c.setFillColor(colors.black)
-
-    def draw_section_title(text: str, x: int, y: int):
-        c.setFillColor(colors.HexColor("#1F3A5F"))
-        c.setFont("Helvetica-Bold", 12)
-        c.drawString(x, y, text)
-        c.setFillColor(colors.black)
-
-    def make_key_value_table(rows, col_widths=(160, 340)):
-        table = Table(rows, colWidths=list(col_widths), rowHeights=22)
-        table.setStyle(TableStyle([
-            ("BACKGROUND", (0, 0), (-1, -1), colors.white),
-            ("BOX", (0, 0), (-1, -1), 0.6, colors.HexColor("#B8C7DB")),
-            ("INNERGRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#D6DEEB")),
-            ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
-            ("FONTNAME", (1, 0), (1, -1), "Helvetica"),
-            ("FONTSIZE", (0, 0), (-1, -1), 9),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("LEFTPADDING", (0, 0), (-1, -1), 6),
-            ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-        ]))
-        return table
-
-    # =========================
-    # PÁGINA 1
-    # =========================
-    draw_logo_and_title("Proforma de Telemedicina")
-
-    draw_section_title("Datos del cliente", 40, 700)
-
-    data_cliente = [
-        ["Cliente", cliente],
-        ["Cédula", cedula],
-        ["Fecha de nacimiento", fecha_nacimiento.strftime("%d/%m/%Y")],
-        ["Dirección", direccion],
-        ["Teléfono", telefono],
-        ["Mail", mail],
-        ["Vendedor", vendedor],
-    ]
-
-    table_cliente = make_key_value_table(data_cliente)
-    table_cliente.wrapOn(c, 40, 0)
-    table_cliente.drawOn(c, 40, 540)
-
-    draw_section_title("Datos de cotización", 40, 515)
-
-    data_cotizacion = [
-        ["Asistencia", "TELEMEDICINA"],
-        ["Plan", plan_nombre],
-        ["Número de personas", f"{personas:,.0f}"],
-        ["Periodo", periodo_label],
-        ["Fecha", fecha_hoy.strftime("%d/%m/%Y")],
-        ["Válido hasta", vigencia.strftime("%d/%m/%Y")],
-    ]
-
-    table_cotizacion = make_key_value_table(data_cotizacion)
-    table_cotizacion.wrapOn(c, 40, 0)
-    table_cotizacion.drawOn(c, 40, 380)
-
-    draw_section_title("Resumen económico", 40, 355)
-
-    data_resumen = [
-        ["Concepto", "Valor"],
-        ["COP mensual base", f"${cop_mensual:,.2f}"],
-        ["COP por persona", f"${cop_final_persona:,.2f}"],
-        ["Precio total", f"${precio_total:,.2f}"],
-    ]
-
-    table_resumen = Table(data_resumen, colWidths=[260, 140], rowHeights=24)
-    table_resumen.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#D9E2F3")),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#1F1F1F")),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
-        ("GRID", (0, 0), (-1, -1), 0.6, colors.HexColor("#B8C7DB")),
-        ("ALIGN", (1, 1), (1, -1), "RIGHT"),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("FONTSIZE", (0, 0), (-1, -1), 10),
-        ("BACKGROUND", (0, 1), (-1, -1), colors.white),
-        ("LEFTPADDING", (0, 0), (-1, -1), 6),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-    ]))
-    table_resumen.wrapOn(c, 40, 0)
-    table_resumen.drawOn(c, 40, 255)
-
-    c.setFont("Helvetica-Oblique", 8)
-    c.setFillColor(colors.grey)
-    c.drawString(40, 35, "Documento generado automáticamente por el cotizador de telemedicina.")
-    c.setFillColor(colors.black)
-
-    # =========================
-    # PÁGINA 2
-    # =========================
-    c.showPage()
-    draw_logo_and_title("Coberturas del plan")
-
-    c.setFont("Helvetica", 10)
-    c.drawString(40, 705, f"Plan seleccionado: {plan_nombre}")
-
-    data_coberturas = [[
-        Paragraph("<b>Asistencia</b>", style_header),
-        Paragraph("<b>Límite de eventos</b>", style_header),
-        Paragraph("<b>Cobertura</b>", style_header),
-    ]]
-
-    for _, row in df_coberturas.iterrows():
-        data_coberturas.append([
-            Paragraph(str(row["asistencia"]), style_normal),
-            Paragraph(str(row["limite_eventos"]), style_normal),
-            Paragraph(str(row["cobertura"]), style_normal),
-        ])
-
-    table_cob = Table(
-        data_coberturas,
-        colWidths=[180, 110, 235],
-        repeatRows=1
-    )
-
-    estilo_cob = [
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#D9E2F3")),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#B8C7DB")),
-        ("VALIGN", (0, 0), (-1, -1), "TOP"),
-        ("FONTSIZE", (0, 0), (-1, -1), 9),
-        ("LEFTPADDING", (0, 0), (-1, -1), 6),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-        ("TOPPADDING", (0, 0), (-1, -1), 6),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
-    ]
-
-    for i in range(1, len(data_coberturas)):
-        bg = colors.whitesmoke if i % 2 == 0 else colors.white
-        estilo_cob.append(("BACKGROUND", (0, i), (-1, i), bg))
-
-    table_cob.setStyle(TableStyle(estilo_cob))
-    table_cob.wrapOn(c, 40, 0)
-    table_cob.drawOn(c, 30, 470)
-
-    c.setFont("Helvetica-Oblique", 8)
-    c.setFillColor(colors.grey)
-    c.drawString(40, 35, "Coberturas sujetas a condiciones de contratación y vigencia de la proforma.")
-    c.setFillColor(colors.black)
-
-    c.save()
-    return temp_pdf.name
-
-
-# =========================
-# BOTÓN PDF
+# BOTÓN PDF + SUPABASE
 # =========================
 
 if st.button("Generar Proforma PDF"):
     try:
-        guardar_log()
-        pdf_path = generar_pdf(
+        guardar_log_supabase(
+            modulo=st.session_state.modulo,
+            tipo_cliente=st.session_state.tipo_cliente,
             cliente=cliente,
             cedula=cedula,
             fecha_nacimiento=fecha_nacimiento,
             direccion=direccion,
             telefono=telefono,
             mail=mail,
+            ruc=ruc,
+            vendedor=st.session_state.vendedor,
+            personas=personas,
+            periodo_label=periodo_label,
+            plan_nombre=plan_nombre,
+            cop_mensual=cop_mensual,
+            cop_final_persona=cop_final_persona,
+            precio_total=precio_total
+        )
+
+        pdf_path = generar_pdf(
+            tipo_cliente=st.session_state.tipo_cliente,
+            cliente=cliente,
+            cedula=cedula,
+            fecha_nacimiento=fecha_nacimiento,
+            direccion=direccion,
+            telefono=telefono,
+            mail=mail,
+            ruc=ruc,
             vendedor=st.session_state.vendedor,
             personas=personas,
             periodo_label=periodo_label,
@@ -669,16 +811,20 @@ if st.button("Generar Proforma PDF"):
             df_coberturas=df_coberturas
         )
 
+        nombre_archivo = cliente.replace(" ", "_").replace("/", "_")
+
+        st.success("Proforma generada y registrada correctamente en Supabase.")
+
         with open(pdf_path, "rb") as f:
             st.download_button(
                 label="Descargar Proforma",
                 data=f,
-                file_name=f"proforma_telemedicina_{cliente.replace(' ', '_')}.pdf",
+                file_name=f"proforma_telemedicina_{nombre_archivo}.pdf",
                 mime="application/pdf"
             )
 
     except Exception as e:
-        st.error(f"Ocurrió un error al generar el PDF: {e}")
+        st.error(f"Ocurrió un error al generar o guardar la proforma: {e}")
 
 
 # =========================
@@ -687,3 +833,5 @@ if st.button("Generar Proforma PDF"):
 
 st.markdown("---")
 st.button("Nueva Cotización", on_click=nueva_cotizacion)
+
+st.markdown("</div>", unsafe_allow_html=True)
